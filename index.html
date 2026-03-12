@@ -2,115 +2,112 @@
 <html lang="nl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Unicorn Castle Defense - Mobiel</title>
 
 <style>
-
 body{
-margin:0;
-font-family:Arial;
-background:linear-gradient(#8fd3ff,#ffd6ff);
-overflow:hidden;
-touch-action:none; /* voorkomt ongewenst scrollen */
+  margin:0;
+  font-family:Arial;
+  background:linear-gradient(#8fd3ff,#ffd6ff);
+  overflow:hidden;
+  touch-action:none; /* voorkomt ongewenst scrollen */
 }
 
 #game{
-position:relative;
-width:100vw;
-height:100vh;
+  position:relative;
+  width:100vw;
+  height:100vh;
 }
 
 #castle{
-position:absolute;
-left:10px;
-top:45%;
-font-size:60px;
+  position:absolute;
+  left:10px;
+  top:45%;
+  font-size:60px;
 }
 
 .unicorn{
-position:absolute;
-left:70px;
-top:48%;
-font-size:40px;
-animation:float 2s infinite ease-in-out;
+  position:absolute;
+  left:70px;
+  top:48%;
+  font-size:40px;
+  animation:float 2s infinite ease-in-out;
 }
 
 @keyframes float{
-0%{transform:translateY(0)}
-50%{transform:translateY(-8px)}
-100%{transform:translateY(0)}
+  0%{transform:translateY(0)}
+  50%{transform:translateY(-8px)}
+  100%{transform:translateY(0)}
 }
 
 .enemy{
-position:absolute;
-font-size:34px;
+  position:absolute;
+  font-size:34px;
 }
 
 .word{
-position:absolute;
-font-size:18px;
-font-weight:bold;
+  position:absolute;
+  font-size:18px;
+  font-weight:bold;
 }
 
 #ui{
-position:absolute;
-top:10px;
-left:10px;
-font-size:18px;
-background:white;
-padding:10px;
-border-radius:8px;
+  position:absolute;
+  top:10px;
+  left:10px;
+  font-size:18px;
+  background:white;
+  padding:10px;
+  border-radius:8px;
+  z-index:50;
 }
 
 #inputBox{
-position:fixed; /* altijd zichtbaar onderaan */
-bottom:0;
-left:0;
-width:100%;
-font-size:22px;
-padding:15px;
-border:none;
-border-top:2px solid #ccc;
-box-sizing:border-box;
-background:white;
-z-index:100;
+  position:fixed;
+  bottom:0;
+  left:0;
+  width:100%;
+  font-size:22px;
+  padding:15px;
+  border:none;
+  border-top:2px solid #ccc;
+  box-sizing:border-box;
+  background:white;
+  z-index:100;
+  text-transform:capitalize; /* eerste letter automatisch hoofdletter */
 }
 
 .power{
-position:absolute;
-font-size:40px;
+  position:absolute;
+  font-size:40px;
 }
-
 </style>
 </head>
 
 <body>
 
 <div id="game">
+  <div id="castle">🏰</div>
+  <div class="unicorn">🦄</div>
 
-<div id="castle">🏰</div>
-<div class="unicorn">🦄</div>
+  <div id="ui">
+    Score: <span id="score">0</span><br>
+    Level: <span id="level">1</span><br>
+    Levens: <span id="life">10</span><br>
+    Highscore: <span id="high">0</span>
+  </div>
 
-<div id="ui">
-Score: <span id="score">0</span><br>
-Level: <span id="level">1</span><br>
-Levens: <span id="life">10</span><br>
-Highscore: <span id="high">0</span>
-</div>
-
-<input id="inputBox" placeholder="Typ het woord..." autocomplete="off" autocorrect="off" autocapitalize="none">
-
+  <input id="inputBox" placeholder="Typ het woord..." autocomplete="off" autocorrect="off" autocapitalize="sentences">
 </div>
 
 <script>
-
 const words=[
-"regenboog","magisch","kantoor","strategie",
-"deadline","planning","fantasie","unicorn",
-"vergadering","document","workflow",
-"organisatie","bureaucratie","koffiepauze",
-"presentatie","analyse","innovatie"
+"Regenboog","Magisch","Kantoor","Strategie",
+"Deadline","Planning","Fantasie","Unicorn",
+"Vergadering","Document","Workflow",
+"Organisatie","Bureaucratie","Koffiepauze",
+"Presentatie","Analyse","Innovatie"
 ]
 
 let enemies=[]
@@ -129,7 +126,6 @@ const input=document.getElementById("inputBox")
 function focusInput(){
     input.focus()
 }
-
 window.addEventListener("touchstart", focusInput)
 window.addEventListener("click", focusInput)
 
@@ -204,7 +200,7 @@ setInterval(gameLoop,30)
 
 // input check
 input.addEventListener("input",function(){
-    let value=this.value.trim().toLowerCase()
+    let value=this.value.trim()
     for(let i=enemies.length-1;i>=0;i--){
         if(value===enemies[i].word){
             score+=10
@@ -241,7 +237,6 @@ function spawnPower(){
         setTimeout(()=>power.remove(),5000)
     }
 }
-
 </script>
 
 </body>
