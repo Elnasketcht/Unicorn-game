@@ -2,85 +2,74 @@
 <html lang="nl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Unicorn Castle Defense - Mobiel</title>
+<title>Unicorn Castle Defense</title>
 
 <style>
 body{
-  margin:0;
-  font-family:Arial;
-  background:linear-gradient(#8fd3ff,#ffd6ff);
-  overflow:hidden;
-  touch-action:none;
+    margin:0;
+    font-family:Arial;
+    background:linear-gradient(#8fd3ff,#ffd6ff);
+    overflow:hidden;
 }
 
 #game{
-  position:relative;
-  width:100vw;
-  height:100vh;
+    position:relative;
+    width:100vw;
+    height:100vh;
 }
 
 #castle{
-  position:absolute;
-  left:10px;
-  top:45%;
-  font-size:60px;
+    position:absolute;
+    left:20px;
+    top:40%;
+    font-size:70px;
 }
 
 .unicorn{
-  position:absolute;
-  left:70px;
-  top:48%;
-  font-size:40px;
-  animation:float 2s infinite ease-in-out;
+    position:absolute;
+    left:90px;
+    top:45%;
+    font-size:40px;
+    animation:float 2s infinite ease-in-out;
 }
 
 @keyframes float{
-  0%{transform:translateY(0)}
-  50%{transform:translateY(-8px)}
-  100%{transform:translateY(0)}
+0%{transform:translateY(0)}
+50%{transform:translateY(-10px)}
+100%{transform:translateY(0)}
 }
 
 .enemy{
-  position:absolute;
-  font-size:34px;
+    position:absolute;
+    font-size:30px;
 }
 
 .word{
-  position:absolute;
-  font-size:20px;
-  font-weight:bold;
+    position:absolute;
+    font-size:16px;
+    color:black;
+    font-weight:bold;
 }
 
 #ui{
-  position:absolute;
-  top:10px;
-  left:10px;
-  font-size:18px;
-  background:white;
-  padding:10px;
-  border-radius:8px;
-  z-index:50;
+    position:absolute;
+    top:10px;
+    left:10px;
+    font-size:18px;
 }
 
 #inputBox{
-  position:fixed;
-  bottom:0;
-  left:0;
-  width:100%;
-  font-size:22px; /* minimaal 16px voorkomt inzoomen */
-  padding:15px;
-  border:none;
-  border-top:2px solid #ccc;
-  box-sizing:border-box;
-  background:white;
-  z-index:100;
-  text-transform:capitalize;
+    position:absolute;
+    bottom:20px;
+    left:50%;
+    transform:translateX(-50%);
+    font-size:22px;
+    padding:10px;
 }
 
 .power{
-  position:absolute;
-  font-size:40px;
+    position:absolute;
+    font-size:30px;
 }
 </style>
 </head>
@@ -88,26 +77,27 @@ body{
 <body>
 
 <div id="game">
-  <div id="castle">🏰</div>
-  <div class="unicorn">🦄</div>
+<div id="castle">🏰</div>
+<div class="unicorn">🦄</div>
 
-  <div id="ui">
-    Score: <span id="score">0</span><br>
-    Level: <span id="level">1</span><br>
-    Levens: <span id="life">10</span><br>
-    Highscore: <span id="high">0</span>
-  </div>
+<div id="ui">
+Score: <span id="score">0</span><br>
+Level: <span id="level">1</span><br>
+Levens: <span id="life">10</span><br>
+Highscore: <span id="high">0</span>
+</div>
 
-  <input id="inputBox" placeholder="Typ het woord..." autocomplete="off" autocorrect="off" autocapitalize="sentences">
+<input id="inputBox" placeholder="Typ het woord..." autofocus>
+
 </div>
 
 <script>
-const words=[
-"Regenboog","Magisch","Kantoor","Strategie",
-"Deadline","Planning","Fantasie","Unicorn",
-"Vergadering","Document","Workflow",
-"Organisatie","Bureaucratie","Koffiepauze",
-"Presentatie","Analyse","Innovatie"
+
+const words = [
+"regenboog","magisch","kantoor","strategie","deadline","planning",
+"fantasie","unicorn","vergadering","document","workflow","organisatie",
+"bureaucratie","koffiepauze","presentatie","analyse","innovatie",
+"creativiteit","project","agenda","doelstelling"
 ]
 
 let enemies=[]
@@ -116,128 +106,174 @@ let level=1
 let life=10
 let speed=1
 
-let highscore=localStorage.getItem("unicornHigh")||0
+let highscore=localStorage.getItem("unicornHigh") || 0
 document.getElementById("high").textContent=highscore
 
 const game=document.getElementById("game")
-const input=document.getElementById("inputBox")
 
-// focus input automatisch bij touch
-function focusInput(){
-    input.focus()
-}
-window.addEventListener("touchstart", focusInput)
-window.addEventListener("click", focusInput)
-
-// spawn vijanden
 function spawnEnemy(){
-    let word=words[Math.floor(Math.random()*words.length)]
-    let enemy=document.createElement("div")
-    enemy.className="enemy"
-    enemy.textContent="🐭"
 
-    let wordDiv=document.createElement("div")
-    wordDiv.className="word"
-    wordDiv.textContent=word
+let word=words[Math.floor(Math.random()*words.length)]
 
-    // zorg dat vijanden **boven het toetsenbord** blijven
-    let y=Math.random()*(window.innerHeight*0.55)+50
+let enemy=document.createElement("div")
+enemy.className="enemy"
+enemy.textContent="🐭"
 
-    enemy.style.left=window.innerWidth+"px"
-    enemy.style.top=y+"px"
+let wordDiv=document.createElement("div")
+wordDiv.className="word"
+wordDiv.textContent=word
 
-    wordDiv.style.left=window.innerWidth+"px"
-    wordDiv.style.top=(y-25)+"px"
+let y=Math.random()*window.innerHeight*0.8
 
-    game.appendChild(enemy)
-    game.appendChild(wordDiv)
+enemy.style.right="0px"
+enemy.style.top=y+"px"
 
-    enemies.push({
-        el:enemy,
-        wordEl:wordDiv,
-        word:word,
-        x:window.innerWidth,
-        y:y
-    })
+wordDiv.style.right="0px"
+wordDiv.style.top=(y-20)+"px"
+
+game.appendChild(enemy)
+game.appendChild(wordDiv)
+
+enemies.push({
+el:enemy,
+wordEl:wordDiv,
+word:word,
+x:window.innerWidth
+})
+
 }
 
-// hoofdloop
 function gameLoop(){
-    for(let i=enemies.length-1;i>=0;i--){
-        let e=enemies[i]
-        e.x-=speed
-        e.el.style.left=e.x+"px"
-        e.wordEl.style.left=e.x+"px"
 
-        if(e.x<80){
-            life--
-            document.getElementById("life").textContent=life
-            removeEnemy(i)
-            if(life<=0) gameOver()
-        }
-    }
+for(let i=enemies.length-1;i>=0;i--){
+
+let e=enemies[i]
+e.x-=speed
+
+e.el.style.right=(window.innerWidth-e.x)+"px"
+e.wordEl.style.right=(window.innerWidth-e.x)+"px"
+
+if(e.x<80){
+
+life--
+document.getElementById("life").textContent=life
+
+game.removeChild(e.el)
+game.removeChild(e.wordEl)
+
+enemies.splice(i,1)
+
+if(life<=0) gameOver()
+
 }
 
-function removeEnemy(i){
-    game.removeChild(enemies[i].el)
-    game.removeChild(enemies[i].wordEl)
-    enemies.splice(i,1)
+}
+
 }
 
 function gameOver(){
-    alert("Game Over! Score: "+score)
-    if(score>highscore) localStorage.setItem("unicornHigh",score)
-    location.reload()
+
+alert("Game Over! Score: "+score)
+
+if(score>highscore){
+localStorage.setItem("unicornHigh",score)
+}
+
+location.reload()
+
 }
 
 function nextLevel(){
-    level++
-    speed+=0.4
-    document.getElementById("level").textContent=level
+
+level++
+speed+=0.5
+
+document.getElementById("level").textContent=level
+
 }
 
 setInterval(spawnEnemy,2000)
 setInterval(gameLoop,30)
 
-// input check
-input.addEventListener("input",function(){
-    let value=this.value.trim()
-    for(let i=enemies.length-1;i>=0;i--){
-        if(value===enemies[i].word){
-            score+=10
-            document.getElementById("score").textContent=score
-            removeEnemy(i)
-            this.value=""
-            if(score%100===0) nextLevel()
-            spawnPower()
-            break
-        }
-    }
+document.getElementById("inputBox").addEventListener("input",function(){
+
+let value=this.value.trim()
+
+for(let i=enemies.length-1;i>=0;i--){
+
+if(value===enemies[i].word){
+
+score+=10
+document.getElementById("score").textContent=score
+
+game.removeChild(enemies[i].el)
+game.removeChild(enemies[i].wordEl)
+
+enemies.splice(i,1)
+
+this.value=""
+
+if(score%100===0) nextLevel()
+
+spawnPower()
+
+break
+
+}
+
+}
+
 })
 
-// powerups
 function spawnPower(){
-    if(Math.random()<0.2){
-        let power=document.createElement("div")
-        power.className="power"
-        power.textContent="🌈"
-        power.style.left=Math.random()*window.innerWidth+"px"
-        power.style.top=Math.random()*window.innerHeight*0.55+"px"
-        game.appendChild(power)
-        power.onclick=function(){
-            for(let e of enemies){
-                game.removeChild(e.el)
-                game.removeChild(e.wordEl)
-            }
-            enemies=[]
-            score+=5
-            document.getElementById("score").textContent=score
-            power.remove()
-            input.focus()
-        }
-        setTimeout(()=>power.remove(),5000)
-    }
+
+if(Math.random()<0.2){
+
+let power=document.createElement("div")
+power.className="power"
+power.textContent="🌈"
+
+power.style.left=Math.random()*window.innerWidth+"px"
+power.style.top=Math.random()*window.innerHeight+"px"
+
+game.appendChild(power)
+
+setTimeout(()=>{
+
+power.remove()
+
+},5000)
+
+power.onclick=function(){
+
+rainbowAttack()
+power.remove()
+
 }
+
+}
+
+}
+
+function rainbowAttack(){
+
+for(let e of enemies){
+
+game.removeChild(e.el)
+game.removeChild(e.wordEl)
+
+score+=5
+
+}
+
+enemies=[]
+
+document.getElementById("score").textContent=score
+
+alert("🌈 Regenboog aanval!")
+
+}
+
 </script>
 
 </body>
