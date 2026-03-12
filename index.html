@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Unicorn Castle Defense</title>
+<title>Unicorn Castle Defense - Mobiel</title>
 
 <style>
 
@@ -12,6 +12,7 @@ margin:0;
 font-family:Arial;
 background:linear-gradient(#8fd3ff,#ffd6ff);
 overflow:hidden;
+touch-action:none; /* voorkomt ongewenst scrollen */
 }
 
 #game{
@@ -63,7 +64,7 @@ border-radius:8px;
 }
 
 #inputBox{
-position:absolute;
+position:fixed; /* altijd zichtbaar onderaan */
 bottom:0;
 left:0;
 width:100%;
@@ -72,6 +73,8 @@ padding:15px;
 border:none;
 border-top:2px solid #ccc;
 box-sizing:border-box;
+background:white;
+z-index:100;
 }
 
 .power{
@@ -96,7 +99,7 @@ Levens: <span id="life">10</span><br>
 Highscore: <span id="high">0</span>
 </div>
 
-<input id="inputBox" placeholder="Typ het woord..." autocomplete="off">
+<input id="inputBox" placeholder="Typ het woord..." autocomplete="off" autocorrect="off" autocapitalize="none">
 
 </div>
 
@@ -122,172 +125,122 @@ document.getElementById("high").textContent=highscore
 const game=document.getElementById("game")
 const input=document.getElementById("inputBox")
 
+// focus input automatisch bij touch of click
+function focusInput(){
+    input.focus()
+}
+
+window.addEventListener("touchstart", focusInput)
+window.addEventListener("click", focusInput)
+
+// spawn vijanden
 function spawnEnemy(){
+    let word=words[Math.floor(Math.random()*words.length)]
+    let enemy=document.createElement("div")
+    enemy.className="enemy"
+    enemy.textContent="🐭"
 
-let word=words[Math.floor(Math.random()*words.length)]
+    let wordDiv=document.createElement("div")
+    wordDiv.className="word"
+    wordDiv.textContent=word
 
-let enemy=document.createElement("div")
-enemy.className="enemy"
-enemy.textContent="🐭"
+    let y=Math.random()*window.innerHeight*0.6+80
 
-let wordDiv=document.createElement("div")
-wordDiv.className="word"
-wordDiv.textContent=word
+    enemy.style.left=window.innerWidth+"px"
+    enemy.style.top=y+"px"
 
-let y=Math.random()*window.innerHeight*0.6+80
+    wordDiv.style.left=window.innerWidth+"px"
+    wordDiv.style.top=(y-25)+"px"
 
-enemy.style.left=window.innerWidth+"px"
-enemy.style.top=y+"px"
+    game.appendChild(enemy)
+    game.appendChild(wordDiv)
 
-wordDiv.style.left=window.innerWidth+"px"
-wordDiv.style.top=(y-25)+"px"
-
-game.appendChild(enemy)
-game.appendChild(wordDiv)
-
-enemies.push({
-el:enemy,
-wordEl:wordDiv,
-word:word,
-x:window.innerWidth,
-y:y
-})
-
+    enemies.push({
+        el:enemy,
+        wordEl:wordDiv,
+        word:word,
+        x:window.innerWidth,
+        y:y
+    })
 }
 
+// hoofdloop
 function gameLoop(){
+    for(let i=enemies.length-1;i>=0;i--){
+        let e=enemies[i]
+        e.x-=speed
+        e.el.style.left=e.x+"px"
+        e.wordEl.style.left=e.x+"px"
 
-for(let i=enemies.length-1;i>=0;i--){
-
-let e=enemies[i]
-
-e.x-=speed
-
-e.el.style.left=e.x+"px"
-e.wordEl.style.left=e.x+"px"
-
-if(e.x<80){
-
-life--
-document.getElementById("life").textContent=life
-
-removeEnemy(i)
-
-if(life<=0) gameOver()
-
-}
-
-}
-
+        if(e.x<80){
+            life--
+            document.getElementById("life").textContent=life
+            removeEnemy(i)
+            if(life<=0) gameOver()
+        }
+    }
 }
 
 function removeEnemy(i){
-
-game.removeChild(enemies[i].el)
-game.removeChild(enemies[i].wordEl)
-
-enemies.splice(i,1)
-
+    game.removeChild(enemies[i].el)
+    game.removeChild(enemies[i].wordEl)
+    enemies.splice(i,1)
 }
 
 function gameOver(){
-
-alert("Game Over! Score: "+score)
-
-if(score>highscore){
-localStorage.setItem("unicornHigh",score)
-}
-
-location.reload()
-
+    alert("Game Over! Score: "+score)
+    if(score>highscore) localStorage.setItem("unicornHigh",score)
+    location.reload()
 }
 
 function nextLevel(){
-
-level++
-speed+=0.4
-
-document.getElementById("level").textContent=level
-
+    level++
+    speed+=0.4
+    document.getElementById("level").textContent=level
 }
 
 setInterval(spawnEnemy,2000)
 setInterval(gameLoop,30)
 
+// input check
 input.addEventListener("input",function(){
-
-let value=this.value.trim().toLowerCase()
-
-for(let i=enemies.length-1;i>=0;i--){
-
-if(value===enemies[i].word){
-
-score+=10
-document.getElementById("score").textContent=score
-
-removeEnemy(i)
-
-this.value=""
-
-if(score%100===0) nextLevel()
-
-spawnPower()
-
-break
-
-}
-
-}
-
+    let value=this.value.trim().toLowerCase()
+    for(let i=enemies.length-1;i>=0;i--){
+        if(value===enemies[i].word){
+            score+=10
+            document.getElementById("score").textContent=score
+            removeEnemy(i)
+            this.value=""
+            if(score%100===0) nextLevel()
+            spawnPower()
+            break
+        }
+    }
 })
 
+// powerups
 function spawnPower(){
-
-if(Math.random()<0.2){
-
-let power=document.createElement("div")
-power.className="power"
-power.textContent="🌈"
-
-power.style.left=Math.random()*window.innerWidth+"px"
-power.style.top=Math.random()*window.innerHeight*0.6+"px"
-
-game.appendChild(power)
-
-power.onclick=function(){
-
-rainbowAttack()
-power.remove()
-input.focus()
-
+    if(Math.random()<0.2){
+        let power=document.createElement("div")
+        power.className="power"
+        power.textContent="🌈"
+        power.style.left=Math.random()*window.innerWidth+"px"
+        power.style.top=Math.random()*window.innerHeight*0.6+"px"
+        game.appendChild(power)
+        power.onclick=function(){
+            for(let e of enemies){
+                game.removeChild(e.el)
+                game.removeChild(e.wordEl)
+            }
+            enemies=[]
+            score+=5
+            document.getElementById("score").textContent=score
+            power.remove()
+            input.focus()
+        }
+        setTimeout(()=>power.remove(),5000)
+    }
 }
-
-setTimeout(()=>power.remove(),5000)
-
-}
-
-}
-
-function rainbowAttack(){
-
-for(let e of enemies){
-
-game.removeChild(e.el)
-game.removeChild(e.wordEl)
-
-score+=5
-
-}
-
-enemies=[]
-
-document.getElementById("score").textContent=score
-
-alert("🌈 Regenboog aanval!")
-
-}
-
-window.addEventListener("touchstart",()=>input.focus())
 
 </script>
 
