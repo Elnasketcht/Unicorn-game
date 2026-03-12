@@ -11,7 +11,7 @@ body{
   font-family:Arial;
   background:linear-gradient(#8fd3ff,#ffd6ff);
   overflow:hidden;
-  touch-action:none; /* voorkomt ongewenst scrollen */
+  touch-action:none;
 }
 
 #game{
@@ -48,7 +48,7 @@ body{
 
 .word{
   position:absolute;
-  font-size:18px;
+  font-size:20px;
   font-weight:bold;
 }
 
@@ -68,14 +68,14 @@ body{
   bottom:0;
   left:0;
   width:100%;
-  font-size:22px;
+  font-size:22px; /* minimaal 16px voorkomt inzoomen */
   padding:15px;
   border:none;
   border-top:2px solid #ccc;
   box-sizing:border-box;
   background:white;
   z-index:100;
-  text-transform:capitalize; /* eerste letter automatisch hoofdletter */
+  text-transform:capitalize;
 }
 
 .power{
@@ -122,7 +122,7 @@ document.getElementById("high").textContent=highscore
 const game=document.getElementById("game")
 const input=document.getElementById("inputBox")
 
-// focus input automatisch bij touch of click
+// focus input automatisch bij touch
 function focusInput(){
     input.focus()
 }
@@ -140,7 +140,8 @@ function spawnEnemy(){
     wordDiv.className="word"
     wordDiv.textContent=word
 
-    let y=Math.random()*window.innerHeight*0.6+80
+    // zorg dat vijanden **boven het toetsenbord** blijven
+    let y=Math.random()*(window.innerHeight*0.55)+50
 
     enemy.style.left=window.innerWidth+"px"
     enemy.style.top=y+"px"
@@ -221,7 +222,7 @@ function spawnPower(){
         power.className="power"
         power.textContent="🌈"
         power.style.left=Math.random()*window.innerWidth+"px"
-        power.style.top=Math.random()*window.innerHeight*0.6+"px"
+        power.style.top=Math.random()*window.innerHeight*0.55+"px"
         game.appendChild(power)
         power.onclick=function(){
             for(let e of enemies){
